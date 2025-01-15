@@ -1,0 +1,40 @@
+{
+  "name": "react",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "main": "src/index.tsx",
+  "dependencies": {
+    "@reduxjs/toolkit": "2.5.0",
+    "antd": "5.23.0",
+    "axios": "^1.7.9",
+    "luxon": "^3.5.0",
+    "moment": "^2.30.1",
+    "react": "^19.0.0",
+    "react-calendly": "4.3.1",
+    "react-dom": "^19.0.0",
+    "react-redux": "9.2.0",
+    "react-router-dom": "7.1.1",
+    "react-scripts": "^5.0.1",
+    "react-select": "^5.9.0",
+    "react-timezone-select": "^3.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "19.0.4",
+    "@types/react-dom": "19.0.2",
+    "loader-utils": "3.3.1",
+    "typescript": "^4.9.5"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

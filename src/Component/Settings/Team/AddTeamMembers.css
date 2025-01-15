@@ -1,0 +1,10 @@
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+  }
+}
