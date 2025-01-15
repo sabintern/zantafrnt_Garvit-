@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 import { login } from "../../features/auth/authSlice";
 import {
   showSocialLogin,
@@ -21,7 +21,8 @@ import {
 } from "../../constant";
 
 const Login = () => {
-  const [loading, setLoading] = useState(false);
+
+  const {loading} = useSelector((state)=>state.auth)
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -121,7 +122,7 @@ const Login = () => {
           </Form.Item>
         </Form>
 
-        <a
+        {/* <a
           className="forgot-password"
           href="#"
           onClick={(e) => {
@@ -130,7 +131,7 @@ const Login = () => {
           }}
         >
           Forgot password?
-        </a>
+        </a> */}
       </div>
 
       {/* Footer */}

@@ -1,57 +1,48 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { messages, messageDetails } from "../../api/mockData";
-import apiClient from "../../config/axios";
 import moment from "moment";
+import apiClient from "../../config/axios";
 
-// Async Thunk to Fetch Messages
-// export const fetchMessages = createAsyncThunk(
-//   "inbox/fetchMessages",
-//   async (amount) => {
-//     return new Promise((resolve, reject) => {
-//       setTimeout(() => {
-//         try {
-//           const mockData = { messages, messageDetails };
-//           resolve({
-//             messages: mockData.messages,
-//             currentMessage: mockData.messageDetails[amount],
-//           });
-//         } catch (error) {
-//           reject("Error fetching messages");
-//         }
-//       }, 1500);
-//     });
-//   }
-// );
-
+// Async thunk to fetch messages
 export const fetchMessages = createAsyncThunk(
   "inbox/fetchMessages",
-  async (amount, { rejectWithValue }) => {
+  async (messageId, { rejectWithValue }) => {
     try {
-      const response = await apiClient.get("/call-data");
+      const response = await apiClient.get("/call-data", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is included if needed
+        },
+      });
 
-      // Extract messages and call details
+      // Validate and extract data
       const data = response.data?.data;
+      if (!data || !Array.isArray(data)) {
+        throw new Error("Invalid response structure or data is not an array");
+      }
 
-      console.log("data", data);
+      // Map and format messages
+      const messages = data.map((entry) => {
+        const call = entry?.data;
 
-      const messages = data.map((data) => {
-        let call = data?.data;
-        const time = new Date(call.startedAt).toLocaleString();
-        const preview =
-          call.transcript.length > 50
-            ? call.transcript.slice(0, 50) + "..."
-            : call.transcript;
+        // Validate call data
+        if (!call) {
+          console.warn("Skipping entry due to missing call data:", entry);
+          return null;
+        }
 
-        console.log("call", call);
-        // Convert the UTC date to a Moment object
-        const specificDate = moment(call.startedAt);
+        const formattedDate = moment(call.startedAt).format(
+          "D MMM YYYY, h:mm A"
+        );
 
-        // Format the date as "3 Jan 2025, 8:49 AM"
-        const formattedDate = specificDate.format("D MMM YYYY, h:mm A");
         return {
           id: call.id,
-          from: call.type == "outboundPhoneCall" ?  data?.phoneNumber : call.customer?.number  ,
-          to:  call.type == "outboundPhoneCall" ? call.customer?.number : data?.phoneNumber,
+          from:
+            call.type === "outboundPhoneCall"
+              ? entry?.phoneNumber
+              : call.customer?.number,
+          to:
+            call.type === "outboundPhoneCall"
+              ? call.customer?.number
+              : entry?.phoneNumber,
           answeredBy: `Julia H - ${formattedDate}`,
           callRecording: {
             duration: call.endedAt
@@ -61,61 +52,32 @@ export const fetchMessages = createAsyncThunk(
             availability: "90 days",
             audioPath: call.recordingUrl,
           },
-          message: data?.message || "Caller is calling to speak to Kelly. Please call back.",
-          deliveredTo: ["ashley@fitpeo.com", "shashank@fitpeo.com"],
-          name: data?.userName,
+          message:
+            entry?.message ||
+            "Caller is calling to speak to Kelly. Please call back.",
+          deliveredTo: [
+            "support@zanta.health"
+          ],
+          name: entry?.userName,
           time: formattedDate,
           preview:
-            data?.summary ||
+            entry?.summary ||
             "Caller is calling to speak to Kelly. Please call back.",
-          // id: call.id,
-          // name: call.customer?.number || "Unknown",
-          // time,
-          // preview,
-          // id: call.id,
-          // type: call.type,
-          // transcript: call.transcript,
-          // summary: call.summary,
-          // startedAt: call.startedAt,
-          // endedAt: call.endedAt,
-          // customerNumber: call.customer?.number,
-          // recordingUrl:  call.recordingUrl,
-          // stereoRecordingUrl: call.stereoRecordingUrl,
-          // status: call.status,
-          // callDuration: call.endedAt
-          //   ? new Date(call.endedAt).getTime() -
-          //     new Date(call.startedAt).getTime()
-          //   : null,
         };
-      });
-
-      console.log("messages", messages);
-
-      // Map API response to the app's expected structure
-      // const messages = data.map((call) => ({
-      //   id: call.id,
-      //   type: call.type,
-      //   transcript: call.transcript,
-      //   summary: call.summary,
-      //   startedAt: call.startedAt,
-      //   endedAt: call.endedAt,
-      //   customerNumber: call.customer?.number,
-      //   recordingUrl: call.recordingUrl,
-      //   stereoRecordingUrl: call.stereoRecordingUrl,
-      //   status: call.status,
-      //   callDuration: call.endedAt
-      //     ? new Date(call.endedAt).getTime() -
-      //       new Date(call.startedAt).getTime()
-      //     : null,
-      // }));
-
-      // Return the messages and set the current message if available
+      }).filter(Boolean); // Remove null entries
       return {
         messages,
-        currentMessage: messages.find((d) => d.id === amount) || messages[0],
+        currentMessage: messages.find((msg) => msg.id === messageId) || messages[0],
       };
     } catch (error) {
-      // Use rejectWithValue to pass the error to the rejected action
+      console.error("Error during API call:", {
+        message: error.message,
+        stack: error.stack,
+        response: error.response,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+
       return rejectWithValue(
         error.response?.data?.message ||
           error.message ||
@@ -125,37 +87,43 @@ export const fetchMessages = createAsyncThunk(
   }
 );
 
-// Initial State
+// Initial state
 const initialState = {
   messages: [],
   currentMessage: null,
   status: "idle",
+  error: null,
 };
 
-// Inbox Slice
+// Inbox slice
 const inboxSlice = createSlice({
   name: "inbox",
   initialState,
   reducers: {
     getCurrentMessage: (state, action) => {
-      state.currentMessage = action.payload; // Set the current message based on user action
+      state.currentMessage = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchMessages.pending, (state) => {
-        state.status = "loading"; // Update status to loading
+        state.status = "loading";
+        state.error = null;
       })
       .addCase(fetchMessages.fulfilled, (state, action) => {
-        state.messages = action.payload.messages; // Populate messages
-        state.currentMessage = action.payload.currentMessage; // Set the current message
-        state.status = "idle"; // Reset status
+        state.messages = action.payload.messages;
+        state.currentMessage = action.payload.currentMessage;
+        state.status = "idle";
+        state.error = null;
       })
-      .addCase(fetchMessages.rejected, (state) => {
-        state.status = "failed"; // Set status to failed in case of error
+      .addCase(fetchMessages.rejected, (state, action) => {
+        console.error("Failed to fetch messages:", action.payload);
+        state.status = "failed";
+        state.error = action.payload || "Unknown error occurred";
       });
   },
 });
 
+// Export actions and reducer
 export const { getCurrentMessage } = inboxSlice.actions;
 export default inboxSlice.reducer;

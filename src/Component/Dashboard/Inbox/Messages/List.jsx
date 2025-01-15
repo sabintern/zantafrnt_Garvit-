@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Layout, Input, List, Avatar, Typography, Drawer, Menu } from "antd";
-import { SearchOutlined, MoreOutlined, InboxOutlined } from "@ant-design/icons";
+import { Layout, Input, List, Avatar, Typography, Drawer, Menu, Spin, Button } from "antd";
+import { SearchOutlined, InboxOutlined, SortAscendingOutlined, SortDescendingOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMessages } from "../../../../features/inbox/inboxSlice";
 
@@ -9,10 +9,14 @@ const { Text, Title } = Typography;
 
 const MessageList = () => {
   const dispatch = useDispatch();
-  const { messages } = useSelector((state) => state.inbox);
+  const { messages, status } = useSelector((state) => state.inbox);
 
   const [isMobile, setIsMobile] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [sortOrder, setSortOrder] = useState("asc"); // Default sort order
+  const [currentPage, setCurrentPage] = useState(1); // Current page for pagination
+  const [selectedMessageId, setSelectedMessageId] = useState(null); // Track selected message
+  const pageSize = 5; // Number of messages per page
 
   // Handle screen resize
   useEffect(() => {
@@ -27,6 +31,32 @@ const MessageList = () => {
 
   const toggleDrawer = () => {
     setDrawerVisible(!drawerVisible);
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
+
+  // Sort and paginate messages
+  const sortedMessages = [...messages].sort((a, b) => {
+    if (sortOrder === "asc") {
+      return new Date(a.time) - new Date(b.time); // Ascending
+    }
+    return new Date(b.time) - new Date(a.time); // Descending
+  });
+
+  const paginatedMessages = sortedMessages.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleSelectMessage = (id) => {
+    setSelectedMessageId(id);
+    dispatch(fetchMessages(id)); // Fetch message details
   };
 
   const SidebarContent = (
@@ -48,19 +78,30 @@ const MessageList = () => {
             placeholder="Search"
             style={{ width: "100%", marginTop: 8 }}
           />
+          <Button
+            icon={sortOrder === "asc" ? <SortAscendingOutlined /> : <SortDescendingOutlined />}
+            onClick={toggleSortOrder}
+            style={{ marginTop: 16 }}
+          >
+            Sort by Time
+          </Button>
         </div>
       </div>
       <List
-        dataSource={messages}
+        dataSource={paginatedMessages}
         renderItem={(item) => (
           <List.Item
-            style={{ padding: 16, cursor: "pointer" }}
-            onClick={() => dispatch(fetchMessages(item.id))}
+            style={{
+              padding: 16,
+              cursor: "pointer",
+              backgroundColor: item.id === selectedMessageId ? "#e6f7ff" : "white", // Highlight selected
+            }}
+            onClick={() => handleSelectMessage(item.id)}
           >
             <List.Item.Meta
               avatar={
                 <Avatar style={{ backgroundColor: "#1890ff" }}>
-                  {item.name[0]}
+                  {item.name[0].toUpperCase()}
                 </Avatar>
               }
               title={
@@ -80,11 +121,17 @@ const MessageList = () => {
             />
           </List.Item>
         )}
+        pagination={{
+          pageSize,
+          current: currentPage,
+          total: messages.length,
+          onChange: handlePageChange,
+        }}
       />
     </div>
   );
 
-  return (
+  return  (
     <>
       {isMobile ? (
         <>
