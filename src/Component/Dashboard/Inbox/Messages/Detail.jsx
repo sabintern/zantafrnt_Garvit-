@@ -1,29 +1,28 @@
-import {
-  Layout,
-  Avatar,
-  Card,
-  Button,
-  Typography,
-  Space,
-  Divider,
-  Row,
-  Col,
-} from "antd";
-import React, { useState } from "react";
-import {
-  PlayCircleOutlined,
-  PauseCircleOutlined,
-  DownloadOutlined,
-} from "@ant-design/icons";
+import React, { useState, useEffect } from "react";
+import { Layout, Avatar, Card, Button, Typography, Space, Divider, Row, Col, Collapse } from "antd";
+import { PlayCircleOutlined, PauseCircleOutlined, DownloadOutlined } from "@ant-design/icons";
+import { useSelector } from "react-redux";
+
 const { Header, Content } = Layout;
 const { Text, Title } = Typography;
-import { useSelector } from "react-redux";
+const { Panel } = Collapse;
 
 const MessageDetails = () => {
   const { currentMessage } = useSelector((state) => state.inbox);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audio, setAudio] = useState(null);
   const [audioDuration, setAudioDuration] = useState(0); // Store the audio duration
+  const [audioCurrentTime, setAudioCurrentTime] = useState(0); // Track current time of audio
+
+  useEffect(() => {
+    if (audio) {
+      const interval = setInterval(() => {
+        setAudioCurrentTime(audio.currentTime);
+      }, 1000);
+
+      return () => clearInterval(interval); // Cleanup on component unmount
+    }
+  }, [audio]);
 
   const handlePlayPause = (audioPath) => {
     if (audio) {
@@ -54,6 +53,8 @@ const MessageDetails = () => {
     link.click(); // Trigger the download
   };
 
+  const audioProgress = (audioCurrentTime / audioDuration) * 100 || 0; // Calculate progress percentage
+
   return (
     <Layout>
       <Header
@@ -64,13 +65,7 @@ const MessageDetails = () => {
           borderBottom: "1px solid #f0f0f0",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Space size={16}>
             <Avatar size={48} style={{ backgroundColor: "#1890ff" }}>
               FR
@@ -116,18 +111,12 @@ const MessageDetails = () => {
                   >
                     <Text strong>Call Recording</Text>
                     <Text type="secondary">
-                      Available for {currentMessage.callRecording.availability}
+                      Available for {currentMessage?.callRecording?.availability}
                     </Text>
                   </div>
                   <Space>
                     <Button
-                      icon={
-                        isPlaying ? (
-                          <PauseCircleOutlined />
-                        ) : (
-                          <PlayCircleOutlined />
-                        )
-                      }
+                      icon={isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
                       onClick={() =>
                         handlePlayPause(currentMessage.callRecording.audioPath)
                       }
@@ -142,7 +131,7 @@ const MessageDetails = () => {
                     >
                       <div
                         style={{
-                          width: "33%", // Change this dynamically based on the audio progress
+                          width: `${audioProgress}%`, // Dynamically adjust the width
                           height: "100%",
                           backgroundColor: "#1890ff",
                           borderRadius: 2,
@@ -151,7 +140,7 @@ const MessageDetails = () => {
                     </div>
                     <Text type="secondary">
                       {audioDuration
-                        ? `${Math.round(audioDuration)}s`
+                        ? `${Math.round(audioCurrentTime)}s / ${Math.round(audioDuration)}s`
                         : currentMessage.callRecording.duration}
                     </Text>
                     <Button
@@ -163,10 +152,41 @@ const MessageDetails = () => {
                   </Space>
                 </Card>
 
-                <div>
-                  <Text type="secondary">Message(If Any)</Text>
-                  <div>{currentMessage.message}</div>
-                </div>
+                <Collapse accordion>
+                  
+                <Panel header={<span><PlayCircleOutlined /> Caller Information</span>} key="1">
+                    {currentMessage.analysis?.structuredData &&
+                      Object.entries(currentMessage.analysis?.structuredData).map(
+                        ([key, value]) => (
+                          <Row key={key} style={{ marginBottom: 8 }}>
+                            <Col span={12}>
+                              <Text strong>{key.trim()}:</Text>
+                            </Col>
+                            <Col span={12}>
+                              <Text>{value}</Text>
+                            </Col>
+                          </Row>
+                        )
+                      )}
+                    {currentMessage.analysis && (
+                      <Row key={"summary"} style={{ marginBottom: 8 }}>
+                        <Col span={12}>
+                          <Text strong>Summary:</Text>
+                        </Col>
+                        <Col span={12}>
+                          <Text>{currentMessage.analysis.summary}</Text>
+                        </Col>
+                      </Row>
+                    )}
+                  </Panel>
+                  </Collapse>
+
+                {/* Collapse for Transcript */}
+                <Collapse accordion>
+                  <Panel header={<span><PlayCircleOutlined /> Transcript</span>} key="1">
+                    <Text>{currentMessage?.transcript}</Text>
+                  </Panel>
+                </Collapse>
 
                 <div>
                   <Text type="secondary">Delivered To</Text>

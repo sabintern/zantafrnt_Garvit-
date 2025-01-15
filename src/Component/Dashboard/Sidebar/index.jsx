@@ -141,7 +141,7 @@ const Sidebar = () => {
         </div>
 
         {/* Main Menu */}
-        <div style={{ flex: 1, height: "85%" }}>
+        <div style={{ flex: 1, height: "90%" }}>
           {renderMenu(
             menuItems.filter((item) => item.position === "up"),
             handleMenuClick

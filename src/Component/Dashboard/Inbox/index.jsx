@@ -9,7 +9,7 @@ const Messages = () => {
 
   return (
 
-    status !== 'loading' ?
+    status === 'loading' ?
       <div className="loader">
         <Spin size="large" />
       </div>
