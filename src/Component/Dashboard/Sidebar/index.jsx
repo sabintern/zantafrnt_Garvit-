@@ -124,7 +124,7 @@ const Sidebar = () => {
           boxShadow: "2px 0px 15px rgba(0, 0, 0, 0.1)", // Adding shadow for depth
         }}
       >
-        {/* Header Section */}
+        {/* Header Section with Logo */}
         <div
           style={{
             padding: "20px 16px",
@@ -133,15 +133,26 @@ const Sidebar = () => {
             gap: 8,
             justifyContent: collapsed ? "center" : "flex-start",
             transition: "all 0.3s ease", // smooth transition for collapse
-            color: "#1890ff",
           }}
         >
-          <div style={{ width: 24, height: 24 }} />
+          {/* Logo Image */}
+          {!collapsed && (
+            <img
+              src="/logo.jpeg" // Path to the logo in the public directory
+              alt="Zanta Health Logo"
+              style={{
+                width: 40,
+                height: 40,
+                objectFit: "contain",
+                marginRight: 8,
+              }}
+            />
+          )}
           {!collapsed && (
             <Text
               strong
               style={{
-                fontSize: 20,
+                fontSize: 16,
                 color: "#1890ff", // Brand color for the header
                 transition: "font-size 0.3s ease",
               }}
@@ -152,7 +163,7 @@ const Sidebar = () => {
         </div>
 
         {/* Main Menu */}
-        <div style={{ flex: 1, height: "88%" }}>
+        <div style={{ flex: 1, height: "91%" }}>
           {renderMenu(
             menuItems.filter((item) => item.position === "up"),
             handleMenuClick
@@ -163,7 +174,6 @@ const Sidebar = () => {
         <div
           style={{
             borderTop: "1px solid #f0f0f0",
-
             backgroundColor: "#fafafa",
           }}
         >

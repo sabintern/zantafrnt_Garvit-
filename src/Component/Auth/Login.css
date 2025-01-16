@@ -115,3 +115,16 @@ button[type="submit"] {
     padding: 1.5rem;
   }
 }
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.logo-image {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}

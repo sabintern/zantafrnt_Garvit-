@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
-import { useDispatch,useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../features/auth/authSlice";
 import {
   showSocialLogin,
@@ -21,29 +21,31 @@ import {
 } from "../../constant";
 
 const Login = () => {
-
-  const {loading} = useSelector((state)=>state.auth)
+  const { loading } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const onFinish = (values) => {
     dispatch(login(values)).then((result) => {
-      console.log("result",result);
+      console.log("result", result);
       if (result.type === "auth/login/fulfilled") {
         navigate("/dashboard");
-      }else if (result.type === "auth/login/rejected") {
-        alert(result?.payload)
+      } else if (result.type === "auth/login/rejected") {
+        alert(result?.payload);
       }
     }).catch((error) => {
-      console.log("error",error);
+      console.log("error", error);
     });
   };
+
   return (
     <div className="login-page">
       {/* Header */}
-
       <header className="header">
-        <div className="logo">{CompanyName}</div>
+        <div className="logo">
+          <img src="/logo.jpeg" alt="Company Logo" className="logo-image" />
+          {CompanyName}
+        </div>
         {showHeaderAtLoginPage ? (
           <Button icon={<PhoneOutlined />} className="phone-button">
             Call 24/7 at {CompanyNumber}
@@ -53,7 +55,7 @@ const Login = () => {
 
       {/* Login Container */}
       <div className="login-container">
-        <h1 className="login-heading">Log Into Your Account</h1>
+        <h1 className="login-heading">Log In</h1>
 
         {showSocialLogin ? (
           <>
