@@ -13,7 +13,12 @@
   }
   
   /* Header Styles */
-
+  .message-header-1 {
+    background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+    padding: 16px 24px;
+    height: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
   
   .header-content {
     display: flex;

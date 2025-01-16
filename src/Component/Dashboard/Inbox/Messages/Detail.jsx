@@ -13,22 +13,31 @@ import {
   Spin,
   Tooltip,
   Progress,
+  Tag,
+  theme
 } from "antd";
 import {
   PlayCircleOutlined,
   PauseCircleOutlined,
   DownloadOutlined,
   SoundOutlined,
+  UserOutlined,
+  PhoneOutlined,
+  InfoCircleOutlined,
+  MailOutlined,
+  ClockCircleOutlined
 } from "@ant-design/icons";
 import { useSelector } from "react-redux";
-import MusicPlayer from './Audio'
+import MusicPlayer from './Audio';
 import "./MessageDetails.css";
 
 const { Header, Content } = Layout;
-const { Text, Title } = Typography;
+const { Text, Title, Paragraph } = Typography;
 const { Panel } = Collapse;
+const { useToken } = theme;
 
 const MessageDetails = () => {
+  const { token } = useToken();
   const { currentMessage } = useSelector((state) => state.inbox);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioDuration, setAudioDuration] = useState(0);
@@ -151,28 +160,36 @@ const MessageDetails = () => {
   }
 
   return (
-    <Layout>
-      <Header
-        style={{
-          background: "linear-gradient(90deg, #1890ff 0%, #1d39c4 100%)",
-          color: "#fff",
-          padding: "16px 24px",
-          height: "auto",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Space size={16} align="center">
-          <Avatar size={48} style={{ backgroundColor: "#fff", color: "#1890ff" }}>
-            {currentMessage.name?.slice(0, 1).toUpperCase() || "?"}
-          </Avatar>
-          <div>
-            <Title level={5} style={{ margin: 0, color: "#fff" }}>
-              {currentMessage.name || "Unknown Sender"}
-            </Title>
-          </div>
-        </Space>
+    <Layout className="message-details-layout">
+      <Header className="message-header-1">
+        <div className="header-content">
+          <Space size={16} align="center">
+            <Avatar 
+              size={56} 
+              icon={<UserOutlined />}
+              className="caller-avatar"
+              style={{
+                backgroundColor: token.colorPrimary,
+                color: token.colorWhite
+              }}
+            >
+              {currentMessage.name?.[0].toUpperCase()}
+            </Avatar>
+            <div className="caller-info">
+              <Title level={4} className="caller-name">
+                {currentMessage.name || "Unknown Caller"}
+              </Title>
+              {/* <Space split={<Divider type="vertical" />} className="call-metadata">
+                <Text type="secondary">
+                  <PhoneOutlined /> {currentMessage.from}
+                </Text>
+              </Space> */}
+            </div>
+          </Space>
+          <Tag color="success" className="call-status">
+            Answered by {currentMessage.answeredBy}
+          </Tag>
+        </div>
       </Header>
 
       <Content style={{ padding: 24, overflowY: "auto" }}>
@@ -189,66 +206,86 @@ const MessageDetails = () => {
               </Col>
             </Row>
 
-            <div>
-              <Text type="secondary">Answered By</Text>
-              <div>{currentMessage.answeredBy}</div>
-            </div>
+
 
             <Card className="audio-player-card">
             <MusicPlayer currentMessage={currentMessage} />
           </Card>
-            <Collapse accordion>
-              <Panel header="Caller Information" key="1">
+
+            <Collapse 
+            className="custom-collapse"
+            expandIconPosition="end"
+          >
+            <Panel 
+              header={
+                <Space>
+                  <InfoCircleOutlined />
+                  <span>Caller Information</span>
+                </Space>
+              } 
+              key="1"
+              className="custom-panel"
+            >
+              <div className="structured-data">
                 {currentMessage.analysis?.structuredData &&
-                  Object.entries(currentMessage.analysis?.structuredData).map(
+                  Object.entries(currentMessage.analysis.structuredData).map(
                     ([key, value]) => (
-                      <Row key={key} style={{ marginBottom: 8 }}>
-                        <Col span={12}>
-                          <Text strong>{key.trim()}:</Text>
+                      <Row key={key} className="data-row">
+                        <Col xs={24} sm={8}>
+                          <Text className="data-label">{key}:</Text>
                         </Col>
-                        <Col span={12}>
-                          <Text>{value}</Text>
+                        <Col xs={24} sm={16}>
+                          <Text className="data-value">{value}</Text>
                         </Col>
                       </Row>
                     )
                   )}
-                {currentMessage.analysis && (
-                  <Row style={{ marginBottom: 8 }}>
-                    <Col span={12}>
-                      <Text strong>Summary:</Text>
-                    </Col>
-                    <Col span={12}>
-                      <Text>{currentMessage.analysis.summary}</Text>
-                    </Col>
-                  </Row>
+                {currentMessage.analysis?.summary && (
+                  <div className="summary-section">
+                    <Title level={5}>Summary</Title>
+                    <Paragraph className="summary-text">
+                      {currentMessage.analysis.summary}
+                    </Paragraph>
+                  </div>
                 )}
-              </Panel>
-            </Collapse>
+              </div>
+            </Panel>
 
-            <Collapse accordion>
-              <Panel header={<span><SoundOutlined /> Transcript</span>} key="2">
-                <div style={{ maxHeight: 300, overflowY: "auto", padding: "8px" }}>
-                  {currentMessage?.transcript.split("\n").map((line, index) => {
-                    const [speaker, ...textParts] = line.split(":");
-                    const text = textParts.join(":").trim();
-                    return (
-                      <div key={index} style={{ marginBottom: 8 }}>
-                        <Text
-                          strong
-                          style={{
-                            color: speaker === "AI" ? "#1890ff" : "#52c41a",
-                            marginRight: 8,
-                          }}
-                        >
-                          {speaker === "User" ? currentMessage?.name || speaker : speaker}:
+            <Panel
+              header={
+                <Space>
+                  <SoundOutlined />
+                  <span>Conversation Transcript</span>
+                </Space>
+              }
+              key="2"
+              className="custom-panel"
+            >
+              <div className="transcript-container">
+                {currentMessage?.transcript.split("\n").map((line, index) => {
+                  const [speaker, ...textParts] = line.split(":");
+                  const text = textParts.join(":").trim();
+                  const isAI = speaker === "AI";
+                  
+                  return (
+                    <div 
+                      key={index} 
+                      className={`message-bubble ${isAI ? 'ai-message' : 'user-message'}`}
+                    >
+                      <div className="message-header">
+                        <Text strong className="speaker-name">
+                          {isAI ? 'AI Assistant' : currentMessage?.name || 'Caller'}
                         </Text>
-                        <Text>{text}</Text>
                       </div>
-                    );
-                  })}
-                </div>
-              </Panel>
-            </Collapse>
+                      <div className="message-text">
+                        {text}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Panel>
+          </Collapse>
 
             <div>
               <Text type="secondary">Delivered To</Text>
