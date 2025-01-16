@@ -1,3 +1,47 @@
-.ant-layout-sider-trigger {
-  display: none;
+/* Sidebar Styling */
+.ant-menu {
+  background-color: #fafafa !important;
+  border-radius: 8px;
+}
+
+.ant-menu-item {
+  padding: 10px 15px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.ant-menu-item:hover {
+  background-color: #f0f0f0;
+  border-radius: 4px;
+}
+
+.ant-menu-item-selected {
+  background-color: #1890ff !important;
+  color: white !important;
+  border-radius: 4px;
+}
+
+/* Menu Icon Styling */
+.ant-menu-item .anticon {
+  font-size: 18px;
+  transition: color 0.3s ease;
+}
+
+.ant-menu-item:hover .anticon {
+  color: #1890ff;
+}
+
+/* Drawer Styling */
+.ant-drawer {
+  background-color: #1f1f1f !important;
+  color: white;
+}
+
+.ant-drawer-title {
+  color: white;
+  font-size: 24px;
+}
+
+.ant-drawer-body {
+  padding: 0;
 }

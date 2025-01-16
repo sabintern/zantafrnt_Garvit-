@@ -2,11 +2,8 @@ import React, { useState } from "react";
 import { Layout, Menu, Typography, Button, Drawer } from "antd";
 import {
   InboxOutlined,
-  CalendarOutlined,
-  SettingOutlined,
   MenuOutlined,
   LogoutOutlined,
-  DollarOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { updateActiveTab } from "../../../features/menu/menuSlice";
@@ -28,28 +25,9 @@ const Sidebar = () => {
   // Menu items for the sidebar and drawer
   const menuItems = [
     { key: "inbox", icon: <InboxOutlined />, label: "Inbox", position: "up" },
-
-    // {
-    //   key: "calendar",
-    //   icon: <CalendarOutlined />,
-    //   label: "Calendar",
-    //   position: "up",
-    // },
-    // {
-    //   key: "pricingDetails",
-    //   icon: <DollarOutlined />,
-    //   label: "Pricing Details",
-    //   position: "up",
-    // },
-    // {
-    //   key: "settings",
-    //   icon: <SettingOutlined />,
-    //   label: "Settings",
-    //   position: "down",
-    // },
     {
       key: "logout",
-      icon: <LogoutOutlined style={{ color: "red" }} />,
+      icon: <LogoutOutlined style={{ color: "#ff4d4f" }} />,
       label: "Logout",
       position: "down",
     },
@@ -79,11 +57,15 @@ const Sidebar = () => {
       selectedKeys={[activeTab]}
       onClick={onClickHandler}
       items={items}
+      style={{
+        borderRight: "1px solid #e8e8e8", // subtle border between items
+      }}
     />
   );
 
   return (
     <>
+      {/* Mobile Drawer */}
       {collapsed && (
         <>
           <Button
@@ -93,6 +75,12 @@ const Sidebar = () => {
               top: 16,
               left: 25,
               zIndex: 1000,
+              backgroundColor: "#fff",
+              borderRadius: "50%",
+              border: "none",
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+              padding: "10px",
+              transition: "all 0.3s ease",
             }}
             onClick={openDrawer}
           />
@@ -103,6 +91,13 @@ const Sidebar = () => {
             visible={drawerVisible}
             bodyStyle={{ padding: 0 }}
             closable={false}
+            width={250}
+            style={{
+              backgroundColor: "#1f1f1f",
+              color: "white",
+              borderRadius: "12px",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+            }}
           >
             {renderMenu(menuItems, (e) => {
               handleMenuClick(e);
@@ -124,6 +119,9 @@ const Sidebar = () => {
           flexDirection: "column",
           borderRight: "1px solid #f0f0f0",
           height: "100vh",
+          backgroundColor: "#ffffff",
+          transition: "width 0.3s ease", // smooth transition on collapse
+          boxShadow: "2px 0px 15px rgba(0, 0, 0, 0.1)", // Adding shadow for depth
         }}
       >
         {/* Header Section */}
@@ -134,28 +132,45 @@ const Sidebar = () => {
             alignItems: "center",
             gap: 8,
             justifyContent: collapsed ? "center" : "flex-start",
+            transition: "all 0.3s ease", // smooth transition for collapse
+            color: "#1890ff",
           }}
         >
           <div style={{ width: 24, height: 24 }} />
-          {!collapsed && <Text strong>well received</Text>}
+          {!collapsed && (
+            <Text
+              strong
+              style={{
+                fontSize: 20,
+                color: "#1890ff", // Brand color for the header
+                transition: "font-size 0.3s ease",
+              }}
+            >
+              Zanta Health
+            </Text>
+          )}
         </div>
 
         {/* Main Menu */}
-        <div style={{ flex: 1, height: "90%" }}>
+        <div style={{ flex: 1, height: "88%" }}>
           {renderMenu(
             menuItems.filter((item) => item.position === "up"),
             handleMenuClick
-          )}{" "}
-          {/* Show main menu items */}
+          )}
         </div>
 
         {/* Settings and Logout Menu */}
-        <div>
+        <div
+          style={{
+            borderTop: "1px solid #f0f0f0",
+
+            backgroundColor: "#fafafa",
+          }}
+        >
           {renderMenu(
             menuItems.filter((item) => item.position === "down"),
             handleMenuClick
-          )}{" "}
-          {/* Show settings and logout */}
+          )}
         </div>
       </Sider>
     </>

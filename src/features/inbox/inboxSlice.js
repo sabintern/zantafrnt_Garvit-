@@ -110,6 +110,7 @@ const inboxSlice = createSlice({
       })
       .addCase(fetchMessages.fulfilled, (state, action) => {
         state.allMesaages = action.payload.messages;
+        state.currentMessage=action.payload.messages[0]
         // Set the initial messages to the first page
         const startIndex = 0;
         const endIndex = startIndex + state.pageSize;

@@ -69,7 +69,7 @@ const MessageList = () => {
             onClick={() => handleSelectMessage(item)}
           >
             <List.Item.Meta
-              avatar={<Avatar style={{ backgroundColor: "#1890ff" }}>{item.name}</Avatar>}
+              avatar={<Avatar style={{ backgroundColor: "#1890ff" }}>{item.name?.[0]||''}</Avatar>}
               title={
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <Text strong>{item.name}</Text>
