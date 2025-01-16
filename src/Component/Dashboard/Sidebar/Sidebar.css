@@ -1,50 +1,88 @@
-/* Sidebar Styling */
-.ant-menu {
-  background-color: #fafafa !important;
-  border-radius: 8px;
+/* Sidebar Styles */
+.sidebar {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.ant-menu-item {
-  padding: 10px 15px;
-  font-weight: 500;
+/* Menu Item Styles */
+.menu-item {
+  margin: 4px 8px !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+}
+
+.menu-item:hover {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+.menu-item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.menu-item-badge {
   transition: all 0.3s ease;
 }
 
-.ant-menu-item:hover {
-  background-color: #f0f0f0;
-  border-radius: 4px;
+/* Mobile Menu Button */
+.mobile-menu-button {
+  transition: all 0.3s ease !important;
+}
+
+.mobile-menu-button:hover {
+  transform: scale(1.05);
+}
+
+/* Ant Design Menu Overrides */
+.ant-menu-item {
+  height: 48px !important;
+  line-height: 48px !important;
+  margin: 4px 8px !important;
 }
 
 .ant-menu-item-selected {
-  background-color: #1890ff !important;
-  color: white !important;
-  border-radius: 4px;
+  background-color: var(--ant-color-primary-bg) !important;
+  border-radius: 6px !important;
 }
 
-/* Menu Icon Styling */
+.ant-menu-item-selected .anticon {
+  color: var(--ant-color-primary) !important;
+}
+
+.menu-item-danger:hover {
+  background-color: rgba(255, 77, 79, 0.1) !important;
+}
+
 .ant-menu-item .anticon {
-  font-size: 18px;
-  transition: color 0.3s ease;
+  font-size: 18px !important;
 }
 
-.ant-menu-item:hover .anticon {
-  color: #1890ff;
+/* Drawer Styles */
+.ant-drawer-content-wrapper {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Drawer Styling */
-.ant-drawer {
-  background-color: #1f1f1f !important;
-  color: white;
+/* Smooth transitions */
+.ant-menu-inline-collapsed > .ant-menu-item {
+  padding: 0 calc(50% - 16px) !important;
 }
 
-.ant-drawer-title {
-  color: white;
-  font-size: 24px;
+/* Scrollbar Styles */
+.ant-layout-sider-children {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
 }
 
-.ant-drawer-body {
-  padding: 0;
+.ant-layout-sider-children::-webkit-scrollbar {
+  width: 6px;
 }
-.ant-layout-sider-trigger{
-  display:none;
+
+.ant-layout-sider-children::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ant-layout-sider-children::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
 }

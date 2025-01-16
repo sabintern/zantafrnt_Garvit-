@@ -22,6 +22,7 @@ import {
 } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import MusicPlayer from './Audio'
+import "./MessageDetails.css";
 
 const { Header, Content } = Layout;
 const { Text, Title } = Typography;
@@ -193,8 +194,9 @@ const MessageDetails = () => {
               <div>{currentMessage.answeredBy}</div>
             </div>
 
-<MusicPlayer currentMessage={currentMessage}/>
-
+            <Card className="audio-player-card">
+            <MusicPlayer currentMessage={currentMessage} />
+          </Card>
             <Collapse accordion>
               <Panel header="Caller Information" key="1">
                 {currentMessage.analysis?.structuredData &&

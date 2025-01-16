@@ -8,6 +8,7 @@ import {
   Drawer,
   Menu,
   Button,
+  Badge
 } from "antd";
 import {
   SearchOutlined,
@@ -21,6 +22,7 @@ import {
   setPagination,
   getCurrentMessage,
 } from "../../../../features/inbox/inboxSlice";
+import "./MessageList.css";
 
 const { Sider } = Layout;
 const { Text, Title } = Typography;
@@ -93,6 +95,22 @@ const MessageList = () => {
       ? new Date(a.time) - new Date(b.time)
       : new Date(b.time) - new Date(a.time);
   });
+  const formatMessageTime = (time) => {
+    const date = new Date(time);
+    const now = new Date();
+    const diff = now - date;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (days === 1) {
+      return 'Yesterday';
+    } else if (days < 7) {
+      return date.toLocaleDateString([], { weekday: 'short' });
+    } else {
+      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
+  };
 
   const handleSelectMessage = (id) => {
     dispatch(getCurrentMessage(id));
@@ -101,38 +119,42 @@ const MessageList = () => {
   const SidebarContent = (
     <div style={styles.sidebarContainer}>
       {/* Sticky Search and Sort Section */}
-      <div style={styles.stickyHeader}>
-        <Title level={5} style={{ margin: 0 }}>
-          Inbox
-        </Title>
-        <Input
-          prefix={<SearchOutlined />}
-          onChange={onSearch}
-          placeholder="Search"
-          style={{ width: "100%", marginTop: 8 }}
-        />
-        <Button
-          icon={
-            sortOrder === "asc" ? (
-              <SortAscendingOutlined />
-            ) : (
-              <SortDescendingOutlined />
-            )
-          }
-          onClick={toggleSortOrder}
-          style={{ marginTop: 16, width: "100%" }}
-        >
-          Sort by Time
-        </Button>
+      <div className="message-list-header">
+        <div className="header-title">
+          <Title level={4} style={{ margin: 0 }}>
+            Inbox
+          </Title>
+          <Badge count={messages.length} style={{ backgroundColor: 'rgb(22, 119, 255)' }} />
+        </div>
+        
+        {/* Enhanced Search Input */}
+        <div className="search-container">
+          <Input
+            prefix={<SearchOutlined style={{ color:'black' }} />}
+            onChange={onSearch}
+            // value={searchValue}
+            placeholder="Search messages..."
+            className="search-input"
+            allowClear
+          />
+          <Button
+            type="text"
+            icon={sortOrder === "asc" ? <SortAscendingOutlined /> : <SortDescendingOutlined />}
+            onClick={toggleSortOrder}
+            className="sort-button"
+            title={`Sort ${sortOrder === "asc" ? "ascending" : "descending"}`}
+          />
+        </div>
       </div>
 
       {/* Messages List */}
       <List
+        className="message-list"
         dataSource={sortedMessages}
         renderItem={(item) => (
           <List.Item
             style={styles.listItem(item.id === currentMessage?.id)}
-            onClick={() => handleSelectMessage(item.id)}
+            onClick={() => handleSelectMessage(item)}
           >
             <List.Item.Meta
               avatar={
@@ -141,16 +163,23 @@ const MessageList = () => {
                 </Avatar>
               }
               title={
-                <div
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  <Text strong>{item.name}</Text>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    {item.time}
+                <div className="message-header">
+                <Text strong className="message-name">
+                  {item.name}
+                </Text>
+                <div className="message-time">
+                  {item.read && <CheckCircleFilled className="read-indicator" />}
+                  <Text type="secondary">
+                    {formatMessageTime(item.time)}
                   </Text>
                 </div>
+              </div>
               }
-              description={<Text type="secondary">{item.preview}</Text>}
+              description={            <div className="message-preview">
+                <Text type="secondary" ellipsis>
+                  {item.preview}
+                </Text>
+              </div>}
             />
           </List.Item>
         )}
